@@ -2,7 +2,7 @@
 MagicCookie={0b13fe8c-dfe0-40eb-8900-6712719559a7}
 Version=1.0
 [File000]
-Location=D:\FCT\Aulas\Ano 2010-2011\Sistemas de Aquisição de Dados\Práticas\TemplateT4\main.o
+Location=C:\dev\SAD\trab1\TemplateT1\main.o
 Folder=Intermediary
 DeviceName=PIC24FJ128GA010
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -15,7 +15,7 @@ ToolArgsString=-g
 TraceCmdString=
 DebugOptions=
 [File001]
-Location=D:\FCT\Aulas\Ano 2010-2011\Sistemas de Aquisição de Dados\Práticas\TemplateT4\out\Trab4_2011.cof
+Location=C:\dev\SAD\trab1\TemplateT1\out\Trab1_2012.cof
 Folder=Output
 DeviceName=PIC24FJ128GA010
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -28,7 +28,7 @@ ToolArgsString=-o"$(TARGETBASE).$(TARGETSUFFIX)" -Map="$(TARGETBASE).map"
 TraceCmdString=
 DebugOptions=
 [File002]
-Location=D:\FCT\Aulas\Ano 2010-2011\Sistemas de Aquisição de Dados\Práticas\TemplateT4\out\Trab4_2011.hex
+Location=C:\dev\SAD\trab1\TemplateT1\out\Trab1_2012.hex
 Folder=Output
 DeviceName=PIC24FJ128GA010
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
