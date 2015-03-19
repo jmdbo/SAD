@@ -1,9 +1,8 @@
 #include <p24fxxxx.h>
 #include <stdio.h>
 #include <string.h>
+#include "uartcom.h"
 
-#define BAUDRATE       9600
-#define BRGVAL          ((FCY/BAUDRATE)/16)-1
 
 // Configuration Bits
 #ifdef __PIC24FJ64GA004__ //Defined by MPLAB when using 24FJ64GA004 device
@@ -15,7 +14,8 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
 int initADC(){
-	AD1PCFG = 0xFFDF; 		// AN2 as analog, all other pins are digital
+	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
+	AD1PCFG = 0xFFFB;		//AN2
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
 							// and starts converting
 	AD1CHS = 0x0005; 		// Connect AN5 as CH0 input
@@ -29,37 +29,6 @@ int initADC(){
 	return 1;
 }
 
-int initUART(){
-
-	U1BRG=9600; 	  	  //Set Baudrate
-	IPC3bits.U1TXIP2 = 1; //Set Uart TX Interrupt Priority
-	IPC3bits.U1TXIP1 = 0;
-	IPC3bits.U1TXIP0 = 0;
-	IPC2bits.U1RXIP2 = 1; //Set Uart RX Interrupt Priority
-	IPC2bits.U1RXIP1 = 0;
-	IPC2bits.U1RXIP0 = 0;
-	
-	U1STA = 0;
-	U1MODE = 0x8000; //Enable Uart for 8-bit data
-	
-	//no parity, 1 STOP bit
-	U1STAbits.UTXEN = 1; //Enable Transmit
-	IEC0bits.U1TXIE = 1; //Enable Transmit Interrupt
-	IEC0bits.U1RXIE = 1; //Enable Receive Interrupt
-
-	return 1;
-}
-
- void writeUART(char *str2Write)
- {
- 	while (*str2Write != '\0')
- 	{
- 		while (!U1STAbits.TRMT);
- 		U1TXREG = *str2Write;
- 		*str2Write++;
- 	}
- }
-
 int main(void)
 {
 	TRISDbits.TRISD6 = 1;
@@ -67,7 +36,7 @@ int main(void)
 	TRISAbits.TRISA0 = 0;
 	TRISAbits.TRISA5 = 0;
 	initADC();
-	//initUART();
+	initUART();
 
 	int i = 0;
 	int ADCValue=0;
@@ -82,8 +51,9 @@ int main(void)
 			for( i = 0 ; i < 20 ; i++){};
 			PORTAbits.RA0 = 0;
 			for( i = 0 ; i < 20000 ; i++){};
-		
+			putstringUART("Blinking!!!\n");
 		}
+		//writeUART("Isto eh um teste\0");
 		if (!PORTDbits.RD13){
 			
 			AD1CON1bits.SAMP = 1; 		// start sampling...
@@ -93,7 +63,8 @@ int main(void)
 			AD1CON1bits.SAMP = 0; 		// start Converting
 			while (!AD1CON1bits.DONE); 	// conversion done?
 			ADCValue = ADC1BUF0;
-			if(ADCValue>=1000){
+			if(ADCValue>=1){
+				//writeUART("Isto eh um teste\0");
 				PORTAbits.RA5 = 1;
 			}else PORTAbits.RA5=0;
 		}
