@@ -69,4 +69,5 @@ int main(void)
 			}else PORTAbits.RA5=0;
 		}
 	}
+sleep(ADCValue);
 }
