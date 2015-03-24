@@ -14,8 +14,8 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
 int initADC(){
-	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
-	AD1PCFG = 0xFFFB;		//AN2
+	AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
+	//AD1PCFG = 0xFFFB;		//AN2
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
 							// and starts converting
 	AD1CHS = 0x0005; 		// Connect AN5 as CH0 input
@@ -42,6 +42,11 @@ int main(void)
 	int ADCValue=0;
 
 	while ( 1 ){
+		if(U2STAbits.URXDA){
+			char rec = getcharUART();
+			if(rec=='T')
+				putstringUART("Received String\n");
+		}	
 		if ( !PORTDbits.RD6){
 			PORTAbits.RA5 = 1;
 			for( i = 0 ; i < 20 ; i++){};
