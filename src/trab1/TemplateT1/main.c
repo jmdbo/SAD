@@ -13,15 +13,10 @@ _CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
-<<<<<<< HEAD
+
 int initADC(){ //potenciometro
 	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
 	AD1PCFG = 0xFFFB;		//AN2
-=======
-int initADC(){
-	AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
-	//AD1PCFG = 0xFFFB;		//AN2
->>>>>>> master
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
 							// and starts converting
 	AD1CHS = 0x0005; 		// Connect AN5 as CH0 input
@@ -47,7 +42,6 @@ int main(void)
 	int ADCValue=0;
 
 	while ( 1 ){
-<<<<<<< HEAD
 
 		PORTAbits.RA0 = 1; //liga led
 		if(ADCValue>=0 || ADCValue<=10){
@@ -82,13 +76,11 @@ int main(void)
 		}
 		PORTAbits.RA0 = 0; // desliga led
 		
-=======
 		if(U2STAbits.URXDA){
 			char rec = getcharUART();
 			if(rec=='T')
 				putstringUART("Received String\n");
 		}	
->>>>>>> master
 		if ( !PORTDbits.RD6){
 			PORTAbits.RA5 = 1; //led
 			for( i = 0 ; i < 20 ; i++){};
