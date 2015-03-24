@@ -13,7 +13,7 @@ _CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
-int initADC(){
+int initADC(){ //potenciometro
 	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
 	AD1PCFG = 0xFFFB;		//AN2
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
@@ -25,31 +25,64 @@ int initADC(){
 	AD1CON2 = 0;
 	AD1CON1bits.ADON = 1; // turn ADC ON
 
-	
 	return 1;
 }
 
 int main(void)
 {
-	TRISDbits.TRISD6 = 1;
+	TRISDbits.TRISD6 = 1; //botao
 	TRISDbits.TRISD13 = 1;
 	TRISAbits.TRISA0 = 0;
 	TRISAbits.TRISA5 = 0;
 	initADC();
 	initUART();
 
-	int i = 0;
+	long int i = 0;
 	int ADCValue=0;
 
 	while ( 1 ){
-		if ( !PORTDbits.RD6){
-			PORTAbits.RA5 = 1;
-			for( i = 0 ; i < 20 ; i++){};
-			PORTAbits.RA0 = 1;
+
+		PORTAbits.RA0 = 1; //liga led
+		if(ADCValue>=0 || ADCValue<=10){
+			for( i = 0 ; i < 100000 ; i++){};
+		}
+		if(ADCValue>10 || ADCValue <=20){
+			for( i = 0 ; i < 90000 ; i++){};
+		}
+		if(ADCValue>20 || ADCValue <=30){
+			for( i = 0 ; i < 80000 ; i++){};
+		}
+		if(ADCValue>30 || ADCValue <=40){
+			for( i = 0 ; i < 70000 ; i++){};
+		}
+		if(ADCValue>40 || ADCValue <=50){
+			for( i = 0 ; i < 60000 ; i++){};
+		}
+		if(ADCValue>50 || ADCValue <=60){
+			for( i = 0 ; i < 50000 ; i++){};
+		}
+		if(ADCValue>60 || ADCValue <=70){
+			for( i = 0 ; i < 40000 ; i++){};
+		}
+		if(ADCValue>70 || ADCValue <=80){
+			for( i = 0 ; i < 30000 ; i++){};
+		}
+		if(ADCValue>80 || ADCValue <=90){
 			for( i = 0 ; i < 20000 ; i++){};
-			PORTAbits.RA5 = 0;
+		}
+		if(ADCValue>90 || ADCValue <=100){
+			for( i = 0 ; i < 10000 ; i++){};
+		}
+		PORTAbits.RA0 = 0; // desliga led
+		
+		if ( !PORTDbits.RD6){
+			PORTAbits.RA5 = 1; //led
 			for( i = 0 ; i < 20 ; i++){};
-			PORTAbits.RA0 = 0;
+			PORTAbits.RA0 = 1; //liga led
+			for( i = 0 ; i < 20000 ; i++){};
+			PORTAbits.RA5 = 0; //led
+			for( i = 0 ; i < 20 ; i++){};
+			PORTAbits.RA0 = 0; //desliga led
 			for( i = 0 ; i < 20000 ; i++){};
 			putstringUART("Blinking!!!\n");
 		}
@@ -69,5 +102,4 @@ int main(void)
 			}else PORTAbits.RA5=0;
 		}
 	}
-sleep(ADCValue);
 }
