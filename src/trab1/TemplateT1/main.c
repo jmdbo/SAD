@@ -1,5 +1,6 @@
 #include <p24fxxxx.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
 #include "uartcom.h"
@@ -44,8 +45,29 @@ int main(void)
 	char buff[50];
 	int pw_entered=0;
 
-	while ( 1 ){
 
+	while ( 1 ){
+		if(U2STAbits.URXDA){
+			char rec = getcharUART();
+			if(rec=='T')
+				putstringUART("Received String\n");
+			if(rec=='P'){
+				sprintf(buff,"Potentiometer: %d\n", ADCValue);
+				putstringUART(buff);
+			}
+		}	
+		if(!PORTDbits.RD7 && !PORTDbits.RD13){
+			pw_entered=0;
+			putstringUART("Palavra Passe\r\n");
+			while(!pw_entered){
+				if(U2STAbits.URXDA){
+					getstringUART(buff,47);
+				}
+			}
+		}
+		if ( !PORTDbits.RD6){
+			/*
+			
 		PORTAbits.RA0 = 1; //liga led
 		if(ADCValue>=0 || ADCValue<=200){
 			for( i = 0 ; i < 100000 ; i++){};
@@ -63,28 +85,8 @@ int main(void)
 			for( i = 0 ; i < 20000 ; i++){};
 		}
 		PORTAbits.RA0 = 0; // desliga led
-		
-		if(U2STAbits.URXDA){
-			char rec = getcharUART();
-			if(rec=='T')
-				//sprintf(buff,"Temp: %d",);
-				//putstringUART(buff);
-				putstringUART("Received String\r\n");
-			if(rec== 'P'){
-				sprintf(buff,"Pot: %d\r\n",ADCValue);
-				putstringUART(buff);
-			}
-		}	
-		if(!PORTDbits.RD7 && !PORTDbits.RD13){
-			pw_entered=0;
-			putstringUART("Palavra Passe\r\n");
-			while(!pw_entered){
-				if(U2STAbits.URXDA){
-					getstringUART(buff,47);
-				}
-			}
-		}
-		if ( !PORTDbits.RD6){
+			
+			*/
 			PORTAbits.RA5 = 1; //led
 			for( i = 0 ; i < 20 ; i++){};
 			PORTAbits.RA0 = 1; //liga led
