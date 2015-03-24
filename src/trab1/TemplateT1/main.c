@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include "uartcom.h"
 
 
@@ -41,7 +42,9 @@ int main(void)
 
 	long int i = 0;
 	int ADCValue=0;
-	char buff[40];
+	char buff[50];
+	int pw_entered=0;
+
 
 	while ( 1 ){
 		if(U2STAbits.URXDA){
@@ -53,40 +56,35 @@ int main(void)
 				putstringUART(buff);
 			}
 		}	
+		if(!PORTDbits.RD7 && !PORTDbits.RD13){
+			pw_entered=0;
+			putstringUART("Palavra Passe\r\n");
+			while(!pw_entered){
+				if(U2STAbits.URXDA){
+					getstringUART(buff,47);
+				}
+			}
+		}
 		if ( !PORTDbits.RD6){
 			/*
-			PORTAbits.RA0 = 1; //liga led
-			if(ADCValue>=0 || ADCValue<=10){
-				for( i = 0 ; i < 100000 ; i++){};
-			}
-			if(ADCValue>10 || ADCValue <=20){
-				for( i = 0 ; i < 90000 ; i++){};
-			}
-			if(ADCValue>20 || ADCValue <=30){
-				for( i = 0 ; i < 80000 ; i++){};
-			}
-			if(ADCValue>30 || ADCValue <=40){
-				for( i = 0 ; i < 70000 ; i++){};
-			}
-			if(ADCValue>40 || ADCValue <=50){
-				for( i = 0 ; i < 60000 ; i++){};
-			}
-			if(ADCValue>50 || ADCValue <=60){
-				for( i = 0 ; i < 50000 ; i++){};
-			}
-			if(ADCValue>60 || ADCValue <=70){
-				for( i = 0 ; i < 40000 ; i++){};
-			}
-			if(ADCValue>70 || ADCValue <=80){
-				for( i = 0 ; i < 30000 ; i++){};
-			}
-			if(ADCValue>80 || ADCValue <=90){
-				for( i = 0 ; i < 20000 ; i++){};
-			}
-			if(ADCValue>90 || ADCValue <=100){
-				for( i = 0 ; i < 10000 ; i++){};
-			}
-			PORTAbits.RA0 = 0; // desliga led
+			
+		PORTAbits.RA0 = 1; //liga led
+		if(ADCValue>=0 || ADCValue<=200){
+			for( i = 0 ; i < 100000 ; i++){};
+		}
+		if(ADCValue>200 || ADCValue <=400){
+			for( i = 0 ; i < 80000 ; i++){};
+		}
+		if(ADCValue>400 || ADCValue <=600){
+			for( i = 0 ; i < 60000 ; i++){};
+		}
+		if(ADCValue>800 || ADCValue <=1000){
+			for( i = 0 ; i < 40000 ; i++){};
+		}
+		if(ADCValue>1023){
+			for( i = 0 ; i < 20000 ; i++){};
+		}
+		PORTAbits.RA0 = 0; // desliga led
 			
 			*/
 			PORTAbits.RA5 = 1; //led
