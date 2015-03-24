@@ -1,6 +1,7 @@
 #include <p24fxxxx.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "uartcom.h"
 
 
@@ -15,8 +16,8 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 
 
 int initADC(){ //potenciometro
-	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
-	AD1PCFG = 0xFFFB;		//AN2
+	AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
+	//AD1PCFG = 0xFFFB;		//AN2
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
 							// and starts converting
 	AD1CHS = 0x0005; 		// Connect AN5 as CH0 input
@@ -40,47 +41,49 @@ int main(void)
 
 	long int i = 0;
 	int ADCValue=0;
+	char buff[50];
+	int pw_entered=0;
 
 	while ( 1 ){
 
 		PORTAbits.RA0 = 1; //liga led
-		if(ADCValue>=0 || ADCValue<=10){
+		if(ADCValue>=0 || ADCValue<=200){
 			for( i = 0 ; i < 100000 ; i++){};
 		}
-		if(ADCValue>10 || ADCValue <=20){
-			for( i = 0 ; i < 90000 ; i++){};
-		}
-		if(ADCValue>20 || ADCValue <=30){
+		if(ADCValue>200 || ADCValue <=400){
 			for( i = 0 ; i < 80000 ; i++){};
 		}
-		if(ADCValue>30 || ADCValue <=40){
-			for( i = 0 ; i < 70000 ; i++){};
-		}
-		if(ADCValue>40 || ADCValue <=50){
+		if(ADCValue>400 || ADCValue <=600){
 			for( i = 0 ; i < 60000 ; i++){};
 		}
-		if(ADCValue>50 || ADCValue <=60){
-			for( i = 0 ; i < 50000 ; i++){};
-		}
-		if(ADCValue>60 || ADCValue <=70){
+		if(ADCValue>800 || ADCValue <=1000){
 			for( i = 0 ; i < 40000 ; i++){};
 		}
-		if(ADCValue>70 || ADCValue <=80){
-			for( i = 0 ; i < 30000 ; i++){};
-		}
-		if(ADCValue>80 || ADCValue <=90){
+		if(ADCValue>1023){
 			for( i = 0 ; i < 20000 ; i++){};
-		}
-		if(ADCValue>90 || ADCValue <=100){
-			for( i = 0 ; i < 10000 ; i++){};
 		}
 		PORTAbits.RA0 = 0; // desliga led
 		
 		if(U2STAbits.URXDA){
 			char rec = getcharUART();
 			if(rec=='T')
-				putstringUART("Received String\n");
+				//sprintf(buff,"Temp: %d",);
+				//putstringUART(buff);
+				putstringUART("Received String\r\n");
+			if(rec== 'P'){
+				sprintf(buff,"Pot: %d\r\n",ADCValue);
+				putstringUART(buff);
+			}
 		}	
+		if(!PORTDbits.RD7 && !PORTDbits.RD13){
+			pw_entered=0;
+			putstringUART("Palavra Passe\r\n");
+			while(!pw_entered){
+				if(U2STAbits.URXDA){
+					getstringUART(buff,47);
+				}
+			}
+		}
 		if ( !PORTDbits.RD6){
 			PORTAbits.RA5 = 1; //led
 			for( i = 0 ; i < 20 ; i++){};
