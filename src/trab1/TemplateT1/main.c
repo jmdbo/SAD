@@ -68,7 +68,11 @@ int main(void)
 			//writeUART("Isto eh um teste\0");
 			PORTAbits.RA5 = 1;
 		}else PORTAbits.RA5=0;
-		
+
+		/***********Update PotValue ********************/
+	
+		/**************Update Temperature **************/
+
 		AD1PCFG = 0xFFFB;
 		AD1CON1bits.SAMP = 1; 		// start sampling...
 		for( i = 0 ; i < 200 ; i++){};
@@ -82,7 +86,7 @@ int main(void)
 			PORTAbits.RA0 = 1;
 		}else PORTAbits.RA0=0;
 		
-		/***********Update PotValue ********************/
+		/**************Update Temperature **************/
 		
 		/************** SET DELAY **********************/
 		if(PotValue>=0 && PotValue<=200){
@@ -107,11 +111,14 @@ int main(void)
 		if(U2STAbits.URXDA){
 			char rec = getcharUART();
 			if(rec=='T' || rec=='t'){
-				putstringUART("Received String\n");
+				putcharUART(rec);
+				putstringUART("\n");
+				sprintf(buff,"Temperature: %d\n", TempValue);
+				putstringUART(buff);
 			}	
 			if(rec=='P' || rec=='p'){
 				putcharUART(rec);
-				putstringUART("\r\n");
+				putstringUART("\n");
 				sprintf(buff,"Potentiometer: %d\n", PotValue);
 				putstringUART(buff);
 			}
@@ -140,27 +147,7 @@ int main(void)
 		}
 		/***************** System RESET by buttons ************************************/
 		if ( state==1){
-			/*
-			
-		PORTAbits.RA0 = 1; //liga led
-		if(PotValue>=0 || PotValue<=200){
-			for( i = 0 ; i < 100000 ; i++){};
-		}
-		if(PotValue>200 || PotValue <=400){
-			for( i = 0 ; i < 80000 ; i++){};
-		}
-		if(PotValue>400 || PotValue <=600){
-			for( i = 0 ; i < 60000 ; i++){};
-		}
-		if(PotValue>800 || PotValue <=1000){
-			for( i = 0 ; i < 40000 ; i++){};
-		}
-		if(PotValue>1023){
-			for( i = 0 ; i < 20000 ; i++){};
-		}
-		PORTAbits.RA0 = 0; // desliga led
-			
-			*/
+
 			PORTAbits.RA5 = 1; //led
 			for( i = 0 ; i < 20 ; i++){};
 			PORTAbits.RA0 = 1; //liga led
