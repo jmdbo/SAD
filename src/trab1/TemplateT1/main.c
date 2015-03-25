@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "uartcom.h"
+#include "lcd.h"
 
 
 // Configuration Bits
@@ -17,8 +18,8 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 
 
 int initADC(){ //potenciometro
-	AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
-	//AD1PCFG = 0xFFFB;		//AN2
+	//AD1PCFG = 0xFFDF; 		// AN5 as analog, all other pins are digital
+	AD1PCFG = 0xFFFB;		//AN2
 	AD1CON1 = 0x0000; 		// SAMP bit = 0 ends sampling
 							// and starts converting
 	AD1CHS = 0x0005; 		// Connect AN5 as CH0 input
@@ -40,6 +41,7 @@ int main(void)
 	TRISAbits.TRISA5 = 0;
 	initADC();
 	initUART();
+	LCDInit();
 
 	long int i = 0;
 	int PotValue=0;
@@ -56,7 +58,8 @@ int main(void)
 	while ( 1 ){
 		
 		/***********Update PotValue ********************/
-		AD1PCFG = 0xFFDF; 
+		AD1PCFG = 0xFFDF;
+		AD1CHS = 0x0005; 
 		AD1CON1bits.SAMP = 1; 		// start sampling...
 		for( i = 0 ; i < 200 ; i++){};
 		 		// Ensure the correct sampling time has elapsed
@@ -64,16 +67,17 @@ int main(void)
 		AD1CON1bits.SAMP = 0; 		// start Converting
 		while (!AD1CON1bits.DONE); 	// conversion done?
 		PotValue = ADC1BUF0;
-		if(PotValue>=1){
-			//writeUART("Isto eh um teste\0");
-			PORTAbits.RA5 = 1;
-		}else PORTAbits.RA5=0;
+		sprintf(buff,"P: %4d",PotValue);
+		//LCDClear();
+		LCDL1Home();
+		putstringLCD(buff);
 
 		/***********Update PotValue ********************/
 	
 		/**************Update Temperature **************/
 
 		AD1PCFG = 0xFFFB;
+		AD1CHS = 0x0002;
 		AD1CON1bits.SAMP = 1; 		// start sampling...
 		for( i = 0 ; i < 200 ; i++){};
 		 		// Ensure the correct sampling time has elapsed
@@ -81,10 +85,8 @@ int main(void)
 		AD1CON1bits.SAMP = 0; 		// start Converting
 		while (!AD1CON1bits.DONE); 	// conversion done?
 		TempValue = ADC1BUF0;
-		if(TempValue>=1){
-			//writeUART("Isto eh um teste\0");
-			PORTAbits.RA0 = 1;
-		}else PORTAbits.RA0=0;
+		sprintf(buff," T: %4d",TempValue);
+		putstringLCD(buff);
 		
 		/**************Update Temperature **************/
 		
@@ -104,7 +106,7 @@ int main(void)
 		if(PotValue>1000){
 			delay = 20000;
 		}
-		
+		/************** SET DELAY **********************/
 		
 		
 		/*********** Check if there is something in the UART ***************************/
@@ -135,6 +137,7 @@ int main(void)
 					if(!strcmp(buff,"boi")){
 						putstringUART("\r\n");
 						putstringUART("Pois es! Password aceite!\r\n");
+						LCDClear();
 						state=0;
 					}else{
 						putstringUART("\r\n");
@@ -159,8 +162,10 @@ int main(void)
 			
 		}
 		//writeUART("Isto eh um teste\0");
-		if (!PORTDbits.RD13){
+		if ((TempValue>180 && state==0) || !PORTDbits.RD13){
 			putstringUART("ALERTA! INCENDIO!\r\n");
+			LCDL2Home();
+			putstringLCD("ALARME ACTIVO!!!");
 			state=1;			
 		}
 	}
