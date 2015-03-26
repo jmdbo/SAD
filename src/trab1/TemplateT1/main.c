@@ -134,15 +134,15 @@ int main(void)
 			while(!pw_entered){
 				if(U2STAbits.URXDA){
 					getstringUART(buff,47);
-					if(!strcmp(buff,"boi")){
+					if(!strcmp(buff,"FCTunl")){
 						putstringUART("\r\n");
-						putstringUART("Pois es! Password aceite!\r\n");
+						putstringUART("Password aceite! Sistema reposto.\r\n");
 						LCDClear();
 						state=0;
 					}else{
 						putstringUART("\r\n");
 						putstringUART(buff);
-						putstringUART("Oh boi, aprende a pass!\r\n");
+						putstringUART("Password errada!\r\n ALARME INCENDIO!!!\r\n");
 					}
 					pw_entered=1;
 				}
