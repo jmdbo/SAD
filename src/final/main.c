@@ -81,7 +81,7 @@ void inicializar()
 
 	// config RF
 	MRF24J40_initialize();    	    //inicializar sistema de radio frequencia ?????
-	MRF24J40_setChannel(CHANNEL_18);    //definir o canal para comunicação
+	MRF24J40_setChannel(CHANNEL_16);    //definir o canal para comunicação
 
 	// config I2C 
 	I2C2CON = 0b1001100011000000;  
@@ -221,7 +221,7 @@ int comand(unsigned char* buff,int comand){
 int main(void)
 {    
 	estado = 0;
-	action = 0;
+	action = 5;
 	int comand_sucess=0;
 	inicializar();
 
@@ -241,22 +241,24 @@ int main(void)
 				estado = 2;
 			}	
 			
-		} else
-		{
-			if (estado == 0)
-			{
-				comand_sucess=comand(bufOUT,1);
-				if(comand_sucess){
-					buf =sendRFMessages(bufOUT,0,0);
-					if(buf.byte[0]){
-						estado = 1;
-					}		
-					//MRF24J40_send(bufOUT, sizeof(bufOUT));
-				}	
-				
-				// Estados intermedios
-			}
 		}
+		if (estado == 0)
+		{
+				bufOUT[0]=0;
+				bufOUT[1]=1;
+				bufOUT[2]=0;
+				bufOUT[3]=0;
+				buf =sendRFMessages(bufOUT,0,0);
+				if(buf.byte[0]){
+					estado = 1;
+					action= 20;
+				}		
+				//MRF24J40_send(bufOUT, sizeof(bufOUT));
+			
+			
+			// Estados intermedios
+		}
+		
 		/*
 
 		int okIn = buf.byte[0];

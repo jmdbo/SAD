@@ -13,7 +13,7 @@ SOLK=<src>|main.c|MRF24J40.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-g -Wall
 TraceCmdString=
-DebugOptions=-D__DEBUG
+DebugOptions=
 [File001]
 Location=C:\dev\SAD\src\final\MRF24J40.o
 Folder=Intermediary
@@ -26,7 +26,7 @@ SOLK=<src>|main.c|MRF24J40.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-g -Wall
 TraceCmdString=
-DebugOptions=-D__DEBUG
+DebugOptions=
 [File002]
 Location=C:\dev\SAD\src\final\PicA.cof
 Folder=Output
@@ -39,7 +39,7 @@ SOLK=<src>|main.c|MRF24J40.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem
 TraceCmdString=
-DebugOptions=--defsym=__MPLAB_DEBUG=1
+DebugOptions=
 [File003]
 Location=C:\dev\SAD\src\final\PicA.hex
 Folder=Output
@@ -52,7 +52,7 @@ SOLK=<src>|main.c|MRF24J40.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem
 TraceCmdString=
-DebugOptions=--defsym=__MPLAB_DEBUG=1
+DebugOptions=
 [TOOL_LOC_STAMPS]
 tool_loc{069BD372-6CA0-40D4-BF2F-5DC806D05083}=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
 tool_loc{433C3D55-811D-409D-A6BF-159CF9355B42}=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
