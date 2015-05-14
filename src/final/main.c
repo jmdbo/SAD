@@ -20,6 +20,7 @@ unsigned char bufOUT[4];
 int okIn;
 int sensorCarro;
 int alarmeCarro;
+int action;
 
 /*
 Functions to use:
@@ -35,22 +36,27 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 	IFS3bits.SI2C2IF = 0;     //disable flag
     IEC3bits.SI2C2IE = 0;
     I2C2CONbits.SCLREL = 0;
-    
+       
 	if(I2C2STATbits.D_A == 0) 
 	{	
 		// read address
+		estado=I2C2RCV;  
 		if (I2C2STATbits.R_W == 1)
 		{
 			// write data
+			I2C2TRN=action;//I2CDataToSend;
+
 		}           
 	} else {
 		if (I2C2STATbits.R_W == 1)
 		{
         	// write data.
+        	//não fazer nada
 		} else 
 		{
 			// read data
-			estado = 1;
+			estado=I2C2RCV;
+			//update_sensors(estado);
         }
 	}
 
@@ -85,14 +91,17 @@ void inicializar()
 
 BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int alarmDecide)
 {
+	/*
 	int bST = bufOUTMesages[0];
 	int bFR = bufOUTMesages[1];
 	int bBA = bufOUTMesages[2];
 	int bSS = bufOUTMesages[3];
-
+	*/
 	int bOk;
 	int bSensorPorta;
 	int bAlarm;
+	
+	int i;
 
 	static BUFFER bufMessages;
 
@@ -100,16 +109,23 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	// led 4 mandar parar
 	// led 5 mandar avançar
 	// led 6 mandar recuar
-	// led 7 pedir sensor
+	/* led 7 pedir sensor
 	Led4 = 0;
 	for (i = 0;i < 10; i++);
 	Led5 = 0;
 	for (i = 0;i < 10; i++);
 	Led6 = 0;
 	for (i = 0;i < 10; i++);
-	Led7 = 0;
+	Led7 = 0;*/
 
 	bOk = 0; bSensorPorta = 0; bAlarm = 0;
+	MRF24J40_send(bufOUTMesages, 4);
+	while(!MRF24J40_newMsg()){
+		for(i=0; i<200; i++);
+	}
+	bufMessages = MRF24J40_get();
+	return bufMessages;
+	/*
 	if (bST == 1)
 	{
 		bOk = 1;
@@ -179,6 +195,7 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	bufMessages.byte[1] = bSensorPorta;
 	bufMessages.byte[2] = bAlarm;
 	return 	bufMessages;
+	z u*/
 }
 
 // comand builder 
@@ -186,15 +203,16 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 //0 if no sucess
 //buff return the comand value
 // comand 0-3
-int comand(int buff[4],int comand){
+int comand(unsigned char* buff,int comand){
+	int i;
 	if(comand<0 || comand >3)
 		return 0;
-	for(int i=0;i<4;i++)
+	for(i=0;i<4;i++)
 	{
 		if(i==comand)
 			buff[i]=1;
 		else
-			buf[i]=0;
+			buff[i]=0;
 	}
 	
 	return 1;	
@@ -203,6 +221,7 @@ int comand(int buff[4],int comand){
 int main(void)
 {    
 	estado = 0;
+	action = 0;
 	int comand_sucess=0;
 	inicializar();
 
@@ -213,28 +232,37 @@ int main(void)
 			RFIF=1;	
 		}
 
-		if (estado == 0)
+		if (estado == 1)
 		{
 			//sensor state
-			comand(bufOUT[4],3);
+			comand(bufOUT,3);
+			buf = sendRFMessages(bufOUT,0,0);
+			if(buf.byte[3]){
+				estado = 2;
+			}	
 			
 		} else
 		{
-			if (estado == 1)
+			if (estado == 0)
 			{
-				comand_sucess=comand(bufOUT[4],1);
+				comand_sucess=comand(bufOUT,1);
 				if(comand_sucess){
-					buffOUT=sendRFMessages(bufOUT,0,0);	
-					MRF24J40_send(bufOUT, sizeof(bufOUT));
+					buf =sendRFMessages(bufOUT,0,0);
+					if(buf.byte[0]){
+						estado = 1;
+					}		
+					//MRF24J40_send(bufOUT, sizeof(bufOUT));
 				}	
-				estado = 0;
+				
 				// Estados intermedios
 			}
 		}
+		/*
 
-		okIn = buf.byte[0];
-		sensorPorta = buf.byte[1];
+		int okIn = buf.byte[0];
+		int sensorPorta = buf.byte[1];
 		int alarm = buf.byte[2];
+		
 		if (MRF24J40_newMsg())
 		{	
 			buf = MRF24J40_get();
@@ -242,5 +270,6 @@ int main(void)
 			sensorCarro=buf[1]; //Detecta 1 nao 0
 			alarmeCarro=buf[2]; // Alarme activo 1 sem alarme 0
 		}
+		*/
 	}
 }
