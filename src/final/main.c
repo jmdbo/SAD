@@ -20,7 +20,18 @@ unsigned char bufOUT[4];
 int okIn;
 int sensorCarro;
 int alarmeCarro;
+
 int action;
+
+int I2C_State;
+
+int garage=0;
+int sensor_garage=0;
+int sensor_alarm=0;
+int sensor_street=0;
+int door=0;
+int fire=0;
+
 
 /*
 Functions to use:
@@ -40,7 +51,7 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 	if(I2C2STATbits.D_A == 0) 
 	{	
 		// read address
-		estado=I2C2RCV;  
+		I2C_State=I2C2RCV;  
 		if (I2C2STATbits.R_W == 1)
 		{
 			// write data
@@ -55,7 +66,7 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 		} else 
 		{
 			// read data
-			estado=I2C2RCV;
+			I2C_State=I2C2RCV;
 			//update_sensors(estado);
         }
 	}
@@ -198,7 +209,7 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	z u*/
 }
 
-// comand builder 
+// comand RF builder 
 //1 if sucess
 //0 if no sucess
 //buff return the comand value
@@ -217,6 +228,48 @@ int comand(unsigned char* buff,int comand){
 	
 	return 1;	
 }	
+
+int send_comandI2C(int comand_to_send)
+{
+	if(i>=0 && i<=5){
+		action = comand_to_send;
+		return 1;
+	}
+	return 0;
+}
+
+//Received comand form i2c.
+int receive_comandI2C(){
+	if(I2C_State==1)
+	{
+		sensor_alarm=0;
+		sensor_garage=0;
+		sensor_street=0;
+	}
+	if(I2C_State==10){
+		sensor_garage=1;
+	}
+	if(I2C_State==20){
+		sensor_street=1;
+	}
+	if(I2C_State==30){
+		door=1;
+	}
+	if(I2C_State==40){
+		door=0;
+	}
+	if(I2C_State==50){
+		sensor_alarm=1;
+	}
+	if(I2C_State==60){
+		sensor_alarm=1;
+	}
+	if(I2C_State==70){
+		fire=1;
+	}
+
+	return 1;	
+}
 
 int main(void)
 {    
@@ -257,6 +310,33 @@ int main(void)
 			
 			
 			// Estados intermedios
+			if(sensor_garage==0 && street_sensor==0 && sensor_alarm==0)
+			{
+				// move foward
+				comand(buffOUT,1);
+			}
+			if(sensor_street==1 && door=0 && sensor_alarm==0){
+				//open door
+				comand(buffOUT,0);
+				send_comandI2C(1);
+			}
+			if(sensor_street==1 && door=1 && sensor_alarm==0){
+				// move foward inside garage
+				command(buffOUT,1);
+			}
+			if(sensor_garage==1 && door=1 && sensor_alarm==0){
+				//Stop car and close door
+				comand(buffOUT,0);
+				send_comandI2C(2);
+				garage=1;
+			}
+			if(sensor_alarm==1 && garage==1 && door ==1){
+				//open door
+				send_comandI2C(1);
+			}
+			if(sensor_garage==1 && garage==1 && door==0){
+				//move backward
+			}
 		}
 		
 		/*
