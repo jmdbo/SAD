@@ -62,7 +62,7 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 		if (I2C2STATbits.R_W == 1)
 		{
         	// write data.
-        	//não fazer nada
+        	garage=I2C2RCV;
 		} else 
 		{
 			// read data
@@ -206,7 +206,7 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	bufMessages.byte[1] = bSensorPorta;
 	bufMessages.byte[2] = bAlarm;
 	return 	bufMessages;
-	z u*/
+	*/
 }
 
 int main(void)
@@ -241,8 +241,7 @@ int main(void)
 		{
 			//sensor state
 			action = 0x01;
-			estado = 2;
-			TRISAbits.TRISA2 = 1;		
+			estado = 2;	
 		}
 		if (estado == 0)
 		{
@@ -251,8 +250,7 @@ int main(void)
 				bufOUT[2]=0;
 				bufOUT[3]=0;
 				estado = 1;
-				TRISAbits.TRISA1 = 1;
-				buf =sendRFMessages(bufOUT,0,0);
+				MRF24J40_send(bufOUT,sizeof(bufOUT));
 				//if(buf.byte[0]){
 					
 				//}	
