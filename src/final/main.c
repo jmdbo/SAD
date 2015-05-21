@@ -51,7 +51,7 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 	if(I2C2STATbits.D_A == 0) 
 	{	
 		// read address
-		I2C_State=I2C2RCV;  
+		garage=I2C2RCV;  
 		if (I2C2STATbits.R_W == 1)
 		{
 			// write data
@@ -66,7 +66,7 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 		} else 
 		{
 			// read data
-			I2C_State=I2C2RCV;
+			garage=I2C2RCV;
 			//update_sensors(estado);
         }
 	}
@@ -213,7 +213,7 @@ int main(void)
 {    
 	estado = 0;
 	action = 5;
-	int comand_sucess=0;
+	//int comand_sucess=0;
 	inicializar();
 
     while(1)
@@ -222,15 +222,27 @@ int main(void)
 		{
 			RFIF=1;	
 		}
+		if(estado == 3 && garage== 10){
+			action = 0x02;
+		}	
+		
+		if(estado ==2 && garage==30){
+			//move car forward
+			bufOUT[0]=0;
+			bufOUT[1]=1;
+			bufOUT[2]=0;
+			bufOUT[3]=0;
+			MRF24J40_send(bufOUT,sizeof(bufOUT));
+			estado=3;
+			
+		}	
 
-		if (estado == 1)
+		if (estado == 1 && garage==20)
 		{
 			//sensor state
-			comand(bufOUT,3);
-			buf = sendRFMessages(bufOUT,0,0);
-			if(buf.byte[3]){
-				estado = 2;
-			}		
+			action = 0x01;
+			estado = 2;
+			TRISAbits.TRISA2 = 1;		
 		}
 		if (estado == 0)
 		{
@@ -238,54 +250,15 @@ int main(void)
 				bufOUT[1]=1;
 				bufOUT[2]=0;
 				bufOUT[3]=0;
+				estado = 1;
+				TRISAbits.TRISA1 = 1;
 				buf =sendRFMessages(bufOUT,0,0);
-				if(buf.byte[0]){
-					estado = 1;
-					action= 20;
-				}		
+				//if(buf.byte[0]){
+					
+				//}	
 				//MRF24J40_send(bufOUT, sizeof(bufOUT));
 			
-			
-			// Estados intermedios
-			if(sensor_garage==0 && street_sensor==0 && sensor_alarm==0)
-			{
-				//move car foward
-				bufOUT[0]=0;
-				bufOUT[1]=1;
-				bufOUT[2]=0;
-				bufOUT[3]=0;
-				MRF24J40_send(bufOUT,sizeof(bufOUT));
-				estado=0;
-			}
-			if(sensor_street==1 && door=0 && sensor_alarm==0){
-				//open door
-				action=1;
-			}
-			if(sensor_street==1 && door=1 && sensor_alarm==0){
-				// move foward inside garage
-				bufOUT[0]=0;
-				bufOUT[1]=1;
-				bufOUT[2]=0;
-				bufOUT[3]=0;
-				MRF24J40_send(bufOUT,sizeof(bufOUT));
-				estado=0;
-			}
-			if(sensor_garage==1 && door=1 && sensor_alarm==0){
-				//Stop car and close door;
-				bufOUT[0]=0;
-				bufOUT[1]=0;
-				bufOUT[2]=1;
-				bufOUT[3]=0;
-				MRF24J40_send(bufOUT,sizeof(bufOUT));				
-				action=2;
-				garage=1;
-			}
-			if(sensor_alarm==1 && garage==1 && door ==1){
-				//open door
-			}
-			if(sensor_garage==1 && garage==1 && door==0){
-				//move backward
-			}
+		
 		}
 		
 		/*
