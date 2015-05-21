@@ -209,68 +209,6 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	z u*/
 }
 
-// comand RF builder 
-//1 if sucess
-//0 if no sucess
-//buff return the comand value
-// comand 0-3
-int comand(unsigned char* buff,int comand){
-	int i;
-	if(comand<0 || comand >3)
-		return 0;
-	for(i=0;i<4;i++)
-	{
-		if(i==comand)
-			buff[i]=1;
-		else
-			buff[i]=0;
-	}
-	
-	return 1;	
-}	
-
-int send_comandI2C(int comand_to_send)
-{
-	if(i>=0 && i<=5){
-		action = comand_to_send;
-		return 1;
-	}
-	return 0;
-}
-
-//Received comand form i2c.
-int receive_comandI2C(){
-	if(I2C_State==1)
-	{
-		sensor_alarm=0;
-		sensor_garage=0;
-		sensor_street=0;
-	}
-	if(I2C_State==10){
-		sensor_garage=1;
-	}
-	if(I2C_State==20){
-		sensor_street=1;
-	}
-	if(I2C_State==30){
-		door=1;
-	}
-	if(I2C_State==40){
-		door=0;
-	}
-	if(I2C_State==50){
-		sensor_alarm=1;
-	}
-	if(I2C_State==60){
-		sensor_alarm=1;
-	}
-	if(I2C_State==70){
-		fire=1;
-	}
-
-	return 1;	
-}
-
 int main(void)
 {    
 	estado = 0;
@@ -292,8 +230,7 @@ int main(void)
 			buf = sendRFMessages(bufOUT,0,0);
 			if(buf.byte[3]){
 				estado = 2;
-			}	
-			
+			}		
 		}
 		if (estado == 0)
 		{
@@ -312,27 +249,39 @@ int main(void)
 			// Estados intermedios
 			if(sensor_garage==0 && street_sensor==0 && sensor_alarm==0)
 			{
-				// move foward
-				comand(buffOUT,1);
+				//move car foward
+				bufOUT[0]=0;
+				bufOUT[1]=1;
+				bufOUT[2]=0;
+				bufOUT[3]=0;
+				MRF24J40_send(bufOUT,sizeof(bufOUT));
+				estado=0;
 			}
 			if(sensor_street==1 && door=0 && sensor_alarm==0){
 				//open door
-				comand(buffOUT,0);
-				send_comandI2C(1);
+				action=1;
 			}
 			if(sensor_street==1 && door=1 && sensor_alarm==0){
 				// move foward inside garage
-				command(buffOUT,1);
+				bufOUT[0]=0;
+				bufOUT[1]=1;
+				bufOUT[2]=0;
+				bufOUT[3]=0;
+				MRF24J40_send(bufOUT,sizeof(bufOUT));
+				estado=0;
 			}
 			if(sensor_garage==1 && door=1 && sensor_alarm==0){
-				//Stop car and close door
-				comand(buffOUT,0);
-				send_comandI2C(2);
+				//Stop car and close door;
+				bufOUT[0]=0;
+				bufOUT[1]=0;
+				bufOUT[2]=1;
+				bufOUT[3]=0;
+				MRF24J40_send(bufOUT,sizeof(bufOUT));				
+				action=2;
 				garage=1;
 			}
 			if(sensor_alarm==1 && garage==1 && door ==1){
 				//open door
-				send_comandI2C(1);
 			}
 			if(sensor_garage==1 && garage==1 && door==0){
 				//move backward
