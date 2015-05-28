@@ -26,12 +26,6 @@ int action;
 int I2C_State;
 
 int garage=0;
-int sensor_garage=0;
-int sensor_alarm=0;
-int sensor_street=0;
-int door=0;
-int fire=0;
-
 
 /*
 Functions to use:
@@ -213,17 +207,73 @@ int main(void)
 {    
 	estado = 0;
 	action = 5;
+	int portaAberta=0;
+	int pedidoLuz=0, luzAlarme=0;
+	int carroEmMovimento=0;
+	int alarme=0;
+	BUFFER receivedBuf;
+	BOOL newMsg;
 	//int comand_sucess=0;
 	inicializar();
 
     while(1)
 	{
+		
 		if(RF_INT_PIN==0)
 		{
 			RFIF=1;	
 		}
+		newMsg=MRF24J40_newMsg();
+		if(newMsg){
+			receivedBuf= MRF24J40_get();
+			alarme=receivedBuf.byte[2];				
+		}	
+		if(garage == 70 && luzAlarme==0 && pedidoLuz ==0){
+			action = 0x03;
+			pedidoLuz=1;
+			
+		}
+		if(pedidoLuz==1 && garage== 50){
+			//Luz Alarme Ligada
+			pedidoLuz = 0;
+			luzAlarme = 1;
+			if(estado==4){
+				estado = 5;
+			}
+			action=5;	
+			
+		}
+		if(estado == 6 && alarme){
+			bufOUT[0]=0;
+			bufOUT[1]=0;
+			bufOUT[2]=1;
+			bufOUT[3]=0;
+			MRF24J40_send(bufOUT,sizeof(bufOUT));
+			estado == 7;
+			
+		}			
+		if(estado == 5 ){
+			if(portaAberta){
+				estado = 6;					
+			}else{
+				action = 0x01;
+			}
+			if(garage==30){
+				estado =6;
+				portaAberta=1;
+			}		
+		}
+			
+		if(estado == 4 && garage == 40){
+			portaAberta=0;
+			action = 5;
+			
+		}	
+		
 		if(estado == 3 && garage== 10){
 			action = 0x02;
+			estado = 4;
+			PORTAbits.RA0 = 1;
 		}	
 		
 		if(estado ==2 && garage==30){
@@ -234,6 +284,8 @@ int main(void)
 			bufOUT[3]=0;
 			MRF24J40_send(bufOUT,sizeof(bufOUT));
 			estado=3;
+			portaAberta=1;
+			action = 5;
 			
 		}	
 
