@@ -243,6 +243,15 @@ int main(void)
 			action=5;	
 			
 		}
+		if(estado == 8 && garage == 40){
+			portaAberta=0;
+			action =5;
+		}	
+		if(estado == 7 && garage == 1){
+			estado =8;
+			action = 2;
+			
+		}	
 		if(estado == 6 && alarme){
 			bufOUT[0]=0;
 			bufOUT[1]=0;
@@ -250,6 +259,7 @@ int main(void)
 			bufOUT[3]=0;
 			MRF24J40_send(bufOUT,sizeof(bufOUT));
 			estado == 7;
+			action = 5;
 			
 		}			
 		if(estado == 5 ){
