@@ -243,6 +243,14 @@ int main(void)
 			action=5;	
 			
 		}
+		if(pedidoLuz == 1 && garage==60){
+			pedidoLuz = 0;
+			luzAlarme = 0;
+			action = 5;
+			if(estado=8){
+				estado=0;
+			}	
+		}	
 		if(estado == 8 && garage == 40){
 			portaAberta=0;
 			action =5;
@@ -257,11 +265,15 @@ int main(void)
 			bufOUT[1]=0;
 			bufOUT[2]=1;
 			bufOUT[3]=0;
-			MRF24J40_send(bufOUT,sizeof(bufOUT));
-			estado == 7;
+			MRF24J40_send(bufOUT, sizeof(bufOUT));
+			estado = 7;
 			action = 5;
 			
-		}			
+		}
+		if(luzAlarme == 1 && alarme ==0 && pedidoLuz==0){
+			pedidoLuz=1;
+			action=0x04;
+		}				
 		if(estado == 5 ){
 			if(portaAberta){
 				estado = 6;					
