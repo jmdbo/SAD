@@ -209,7 +209,7 @@ int main(void)
 	action = 5;
 	int portaAberta=0;
 	int pedidoLuz=0, luzAlarme=0;
-	int carroEmMovimento=0;
+	//int carroEmMovimento=0;
 	int alarme=0;
 	BUFFER receivedBuf;
 	BOOL newMsg;
@@ -247,7 +247,7 @@ int main(void)
 			pedidoLuz = 0;
 			luzAlarme = 0;
 			action = 5;
-			if(estado=8){
+			if(estado==8){
 				estado=0;
 			}	
 		}	
