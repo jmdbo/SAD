@@ -6,10 +6,10 @@
 
 // Setup configuration bits
 #ifdef __PIC24FJ64GA004__ //Defined by MPLAB when using 24FJ64GA004 device
-_CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx1 & IOL1WAY_ON) 
+_CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx1 & IOL1WAY_ON)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI & I2C1SEL_SEC)
 #else
-_CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2) 
+_CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
@@ -29,7 +29,7 @@ int garage=0;
 
 /*
 Functions to use:
-  void MRF24J40_setChannel(BYTE channel)     - Sets the current operating channel 
+  void MRF24J40_setChannel(BYTE channel)     - Sets the current operating channel
   BOOL MRF24J40_newMsg( void )               - Checks if a new message have arrived
   BYTE* MRF24J40_get( void )                 - Gets the received message
   void MRF24J40_send(BYTE* txPck, BYTE len)  - Sends a message
@@ -41,23 +41,23 @@ void __attribute__((interrupt, auto_psv)) _SI2C2Interrupt(void)
 	IFS3bits.SI2C2IF = 0;     //disable flag
     IEC3bits.SI2C2IE = 0;
     I2C2CONbits.SCLREL = 0;
-       
-	if(I2C2STATbits.D_A == 0) 
-	{	
+
+	if(I2C2STATbits.D_A == 0)
+	{
 		// read address
-		garage=I2C2RCV;  
+		garage=I2C2RCV;
 		if (I2C2STATbits.R_W == 1)
 		{
 			// write data
 			I2C2TRN=action;//I2CDataToSend;
 
-		}           
+		}
 	} else {
 		if (I2C2STATbits.R_W == 1)
 		{
         	// write data.
         	garage=I2C2RCV;
-		} else 
+		} else
 		{
 			// read data
 			garage=I2C2RCV;
@@ -86,10 +86,10 @@ void inicializar()
 
 	// config RF
 	MRF24J40_initialize();    	    //inicializar sistema de radio frequencia ?????
-	MRF24J40_setChannel(CHANNEL_16);    //definir o canal para comunicação
+	MRF24J40_setChannel(CHANNEL_16);    //definir o canal para comunicaï¿½ï¿½o
 
-	// config I2C 
-	I2C2CON = 0b1001100011000000;  
+	// config I2C
+	I2C2CON = 0b1001100011000000;
 	I2C2ADD = 2;
 	IEC3bits.SI2C2IE = 1;
 }
@@ -105,14 +105,14 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 	int bOk;
 	int bSensorPorta;
 	int bAlarm;
-	
+
 	int i;
 
 	static BUFFER bufMessages;
 
 	// led 0 alarme
 	// led 4 mandar parar
-	// led 5 mandar avançar
+	// led 5 mandar avanï¿½ar
 	// led 6 mandar recuar
 	/* led 7 pedir sensor
 	Led4 = 0;
@@ -165,7 +165,7 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 			Led6 = 1;
 			for (i = 0;i < 10; i++);
 			Led7 = 0;
-			}	
+			}
 		}
 	}
 	if (bSS == 1)
@@ -204,7 +204,7 @@ BUFFER sendRFMessages(unsigned char bufOUTMesages[4], int sensorPortaDecide, int
 }
 
 int main(void)
-{    
+{
 	estado = 0;
 	action = 5;
 	int portaAberta=0;
@@ -218,20 +218,20 @@ int main(void)
 
     while(1)
 	{
-		
+
 		if(RF_INT_PIN==0)
 		{
-			RFIF=1;	
+			RFIF=1;
 		}
 		newMsg=MRF24J40_newMsg();
 		if(newMsg){
 			receivedBuf= MRF24J40_get();
-			alarme=receivedBuf.byte[2];				
-		}	
+			alarme=receivedBuf.byte[2];
+		}
 		if(garage == 70 && luzAlarme==0 && pedidoLuz ==0){
 			action = 0x03;
 			pedidoLuz=1;
-			
+
 		}
 		if(pedidoLuz==1 && garage== 50){
 			//Luz Alarme Ligada
@@ -240,8 +240,8 @@ int main(void)
 			if(estado==4){
 				estado = 5;
 			}
-			action=5;	
-			
+			action=5;
+
 		}
 		if(pedidoLuz == 1 && garage==60){
 			pedidoLuz = 0;
@@ -249,17 +249,17 @@ int main(void)
 			action = 5;
 			if(estado==8){
 				estado=0;
-			}	
-		}	
+			}
+		}
 		if(estado == 8 && garage == 40){
 			portaAberta=0;
 			action =5;
-		}	
+		}
 		if(estado == 7 && garage == 1){
 			estado =8;
 			action = 2;
-			
-		}	
+
+		}
 		if(estado == 6 && alarme){
 			bufOUT[0]=0;
 			bufOUT[1]=0;
@@ -268,36 +268,36 @@ int main(void)
 			MRF24J40_send(bufOUT, sizeof(bufOUT));
 			estado = 7;
 			action = 5;
-			
+
 		}
 		if(luzAlarme == 1 && alarme ==0 && pedidoLuz==0){
 			pedidoLuz=1;
 			action=0x04;
-		}				
+		}
 		if(estado == 5 ){
 			if(portaAberta){
-				estado = 6;					
+				estado = 6;
 			}else{
 				action = 0x01;
 			}
 			if(garage==30){
 				estado =6;
 				portaAberta=1;
-			}		
+			}
 		}
-			
+
 		if(estado == 4 && garage == 40){
 			portaAberta=0;
 			action = 5;
-			
-		}	
-		
+
+		}
+
 		if(estado == 3 && garage== 10){
 			action = 0x02;
 			estado = 4;
 			PORTAbits.RA0 = 1;
-		}	
-		
+		}
+
 		if(estado ==2 && garage==30){
 			//move car forward
 			bufOUT[0]=0;
@@ -308,14 +308,14 @@ int main(void)
 			estado=3;
 			portaAberta=1;
 			action = 5;
-			
-		}	
+
+		}
 
 		if (estado == 1 && garage==20)
 		{
 			//sensor state
 			action = 0x01;
-			estado = 2;	
+			estado = 2;
 		}
 		if (estado == 0)
 		{
@@ -325,22 +325,17 @@ int main(void)
 				bufOUT[3]=0;
 				estado = 1;
 				MRF24J40_send(bufOUT,sizeof(bufOUT));
-				//if(buf.byte[0]){
-					
-				//}	
-				//MRF24J40_send(bufOUT, sizeof(bufOUT));
-			
-		
+
 		}
-		
+
 		/*
 
 		int okIn = buf.byte[0];
 		int sensorPorta = buf.byte[1];
 		int alarm = buf.byte[2];
-		
+
 		if (MRF24J40_newMsg())
-		{	
+		{
 			buf = MRF24J40_get();
 			okIn= buf[0]; // Actouo 1 ou nao 0
 			sensorCarro=buf[1]; //Detecta 1 nao 0
